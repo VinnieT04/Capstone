@@ -87,10 +87,6 @@ knn.fit(X_train, y_train)
 kNN_predictions = cross_val_predict(knn, X, y, cv=5)
 kNN_scores = cross_val_score(knn ,X, y, cv=5, scoring='accuracy')
 
-print(f"Number of predictions: {len(kNN_predictions)}")
-print(f"First 10 predictions: {kNN_predictions[:10]}")
-print(f"Type of data: {type(kNN_predictions[0])}")
-
 print(f"k-Nearest Neighbors : {kNN_scores.mean():.2%} ± {kNN_scores.std():.2%}")
 print(f"Scores: {kNN_scores}")
 
