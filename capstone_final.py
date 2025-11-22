@@ -6,6 +6,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.model_selection import cross_val_predict, cross_val_score
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
 #LOAD DATA
 df = pd.read_csv('Library_woAVG.csv')
@@ -13,7 +14,8 @@ df = pd.read_csv('Library_woAVG.csv')
 #DROP HIDDEN NETWORKS and HOTSPOTS
 df = df[df['SSID'] != 'Hidden_Network']
 hotspot = ['iPhone', 'Android', 'Galaxy', 'Xiaomi', 'Pixel', 'Redmi', 'Brian', 'æ©æ©æ©æ©ç',
-            'DIRECT-', 'Chris', 'Personal', 'Skyler', 'phone', 'Benben', 'Loser', 'årrrrrrr' ,'å²']
+            'DIRECT-', 'Chris', 'Personal', 'Skyler', 'phone', 'Benben', 'Loser', 'årrrrrrr' ,'å²',
+            'èæé²', 'ð«â­ï¸â¨â¡ï¸ð«', 'XxxxxxxX', 'general_7006', 'vivo Y38 5G', 'Calvin']
 
 #count appereances
 appearances = df.groupby('SSID')['Location'].nunique()
@@ -26,8 +28,6 @@ filtered_df = df[df['SSID'].isin(common_ssids)].copy()
 for keyword in hotspot:
     filtered_df = filtered_df[~filtered_df['SSID'].str.contains(keyword, case=False, na=False)]
 
-#print(f"After hotspot filtering: {filtered_df['SSID'].nunique()} unique SSIDs remaining")
-
 #PIVOT THE DATA
 pivot_table = filtered_df.pivot_table(
     index=['Scan_ID','Location', 'Run'],      
@@ -37,19 +37,50 @@ pivot_table = filtered_df.pivot_table(
     fill_value=-100 
 )
 
-#print(pivot_table.columns)
+#keep track of the SSIDs to see if they are reliable and save them in a new csv
+print(pivot_table.columns)
+pivot_table.to_csv("Pivot_woAVG.csv")
 
 X = pivot_table.values  #features, the parameters
 y = pivot_table.index.get_level_values('Location')   #labels, what is going to be predicted
 
-# print(X.shape)
-# print(type(X))
-# print(y.shape)
-# print(type(y))
+                    #testing the random states and number of nighbors
+for i in [43,44,45,46,47,48]:
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=i, stratify=y)
+    print(f"\nUsing random state: {i}")
+    for i in [1,3,5,7,9]:
+        print(f"Using {i} neighbor(s):")
+        model = KNeighborsClassifier(n_neighbors=i, weights='distance')
+        model.fit(X_train, y_train)
+        acc = model.score(X_test, y_test)
 
+        print(f"Accuracy: {acc:.2%}")
+
+                    #CROSS VALIDATION TEST
+print("\nCROSS VALIDATION ...")
+for i in [1, 3, 5, 7, 9]:
+     model = KNeighborsClassifier(n_neighbors=i, weights='distance')
+     cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+
+     #print(f"number of neighbors {i}")
+     print(f"Accuracy for each fold: {cv_scores}")
+     print(f"Mean Accuracy: {cv_scores.mean():.2%}")
+     print(f"Standard Deviation: {cv_scores.std():.2%}\n")
+
+     #VISUALIZE CROSS VALIDATION
+neighbors = [1, 3, 5, 7, 9]
+mean_acc = [79.20, 77.60, 78.60, 77.60, 77.20]
+std_dev = [9.99, 9.56, 7.89, 9.81, 11.60]
+
+plt.ylabel("Accuracy (%)")
+plt.xlabel("Number of Neighbors")
+plt.plot(neighbors, mean_acc, color='lightgreen')
+plt.errorbar(neighbors, mean_acc, yerr=std_dev, fmt='o', color='seagreen')
+plt.show()
+                    
+                    #FINAL MODELS
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=43, stratify=y)
 
-                    #FINAL MODELS
 #K-NEAREST NEIGHBORS
 knn = KNeighborsClassifier(n_neighbors=7, weights='distance')
 knn.fit(X_train, y_train)
@@ -93,7 +124,20 @@ plt.show()
 models = ['k-NN', 'Random Forest']
 accuracies = [82.60, 87.00]
 std_dev = [9.97, 9.63]
-# plt.title("Model Comparison over 5 Fold-Cross Validation")
 plt.ylabel("Accuracies (%)")
 plt.bar(models, accuracies, yerr=std_dev, color='lightgreen')
+plt.show()
+
+#heatmap
+location_avg = pivot_table.groupby(level='Location').mean()
+plt.figure(figsize=(14, 6))
+sns.heatmap(location_avg, 
+            cmap='RdYlGn_r',  # Red=weak, Green=strong
+            center=-70,       # Middle value for color scale
+            annot=False,      # Set True if you want numbers in cells
+            cbar_kws={'label': 'Signal Strength (dBm)'})
+plt.xlabel('SSID')
+plt.ylabel('Location')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
 plt.show()
