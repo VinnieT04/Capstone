@@ -43,40 +43,6 @@ pivot_table = filtered_df.pivot_table(
 
 X = pivot_table.values  #features, the parameters
 y = pivot_table.index.get_level_values('Location')   #labels, what is going to be predicted
-
-                    #testing the random states and number of nighbors
-for i in [43,44,45,46,47,48]:
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=i, stratify=y)
-    print(f"\nUsing random state: {i}")
-    for i in [1,3,5,7,9]:
-        print(f"Using {i} neighbor(s):")
-        model = KNeighborsClassifier(n_neighbors=i, weights='distance')
-        model.fit(X_train, y_train)
-        acc = model.score(X_test, y_test)
-
-        print(f"Accuracy: {acc:.2%}")
-
-                    #CROSS VALIDATION TEST
-print("\nCROSS VALIDATION ...")
-for i in [1, 3, 5, 7, 9]:
-     model = KNeighborsClassifier(n_neighbors=i, weights='distance', metric='manhattan')
-     cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
-
-     #print(f"number of neighbors {i}")
-     print(f"Accuracy for each fold: {cv_scores}")
-     print(f"Mean Accuracy: {cv_scores.mean():.2%}")
-     print(f"Standard Deviation: {cv_scores.std():.2%}\n")
-
-     #VISUALIZE CROSS VALIDATION
-neighbors = [1, 3, 5, 7, 9]
-mean_acc = [83.80, 82.60, 82.60, 82.20, 80.60]
-std_dev = [7.44, 8.82, 8.38, 8.38, 8.52]
-
-plt.ylabel("Accuracy (%)")
-plt.xlabel("Number of Neighbors")
-plt.plot(neighbors, mean_acc, color='lightgreen')
-plt.errorbar(neighbors, mean_acc, yerr=std_dev, fmt='o', color='seagreen')
-plt.show()
                     
                     #FINAL MODELS
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=45, stratify=y)
