@@ -37,6 +37,8 @@ pivot_table = filtered_df.pivot_table(
     fill_value=-100 
 )
 
+print(f"Number of SSIDs (features): {pivot_table.shape[1]}")
+
 #keep track of the SSIDs to see if they are reliable and save them in a new csv
 # print(pivot_table.columns)
 # pivot_table.to_csv("Pivot_woAVG.csv")
@@ -58,6 +60,7 @@ print(f"Scores: {kNN_scores}")
 
 #RANDOM FOREST
 rf = RandomForestClassifier(n_estimators=500, random_state=45, min_samples_leaf=1, max_depth=10, min_samples_split=2)
+rf.fit(X_train, y_train)
 RF_predictions = cross_val_predict(rf, X, y, cv=5)
 RF_scores = cross_val_score(rf ,X, y, cv=5, scoring='accuracy')
 
@@ -99,3 +102,11 @@ plt.ylabel('Location')
 plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 plt.show()
+
+#to save the models
+import joblib
+
+joblib.dump(knn, 'knn_model.pkl')
+joblib.dump(rf, 'rf_model.pkl')
+
+print("Models saved successfully!")
