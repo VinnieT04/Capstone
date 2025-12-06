@@ -8,7 +8,7 @@
     <body>
         <h1>Indoor Positioning using WiFi Fingerprinting</h1>
         
-        <div>
+        <div id="choose">
             <h2>Select a sample to test:</h2>
             <select id="sampleDropdown">
                 <option value="">-- Choose a sample --</option>
@@ -17,7 +17,7 @@
                 {% endfor %}
             </select>
 
-        <button id="predictButton" onclick="getOption()">Predict Location</button>
+        <button class="button" id="predictButton" onclick="getOption()">Predict</button>
         
         </div>
 
@@ -27,15 +27,23 @@
              </div>
 
              <div id="map">
-                <img src="/images/library_layout.jpg" alt="Library map" id="floor-map">
+                <img src="static/images/layout.jpg" alt="Library map" id="floor-map">
 
                 <div id="knn-marker" class="marker">KNN</div>
                 <div id="rf-marker" class="marker">RF</div>
-                <div id="actual-marker" class="marker">Actual</div>
              </div>
         </div>
         
         <script>
+            const ZONE_COORDS = {
+                // Replace these placeholder values with your actual calculated coordinates (in pixels)
+                "TopPicks/Audiovisual": { x: 108, y: 348 },
+                "MainStairs/TopPicks": { x: 304, y: 348 },
+                "LaptopPriority/CurrentPeriodicals": { x: 506, y: 348 },
+                "Stairs/RightEnd": { x: 365, y: 122.5 },
+                "Hallway/LeftEnd": { x: 839.5, y: 122.5}
+            };
+
             function getOption()
             {
                 selectedElement = document.querySelector('#sampleDropdown')
@@ -87,36 +95,76 @@
 </html>
 
 <style>
+    body{
+        background-color: #F5F6E9; 
+        text-align: center;
+        font-family: 'Times New Roman', monospace;
+        font-family:'Franklin Gothic', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h1{
+
+    }
+
+    .button{
+        transition-duration: 0.4s;
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px #999;
+        cursor: pointer;
+        background-color: rgb(214, 214, 214);
+        padding: 3px 20px;
+
+        
+    }
+
+    .button:hover{
+        background-color: rgb(124, 124, 124);
+        color: white;
+    }
+
     #container{
         display: flex;
         justify-content: center;
         margin: 20px, auto;
+    }
+    
+    select {
+        -webkit-appearance: none;
+        appearance: none;
+        padding: 3px 20px;
+        margin-right: 20px;
+    }
+
+    #choose{
+        padding-left: 30px;
+        padding-bottom: 30px;
+        padding-right: 30px;
     }
 
     #map{
         position: relative;
         width: 700px;
         height: auto;
-        border: 1px solid #ccc;
     }
 
     #floor-map{
-
+        width: 100%; /* Make the image fill the map container */
+        height: auto;
+        display: block;
     }
 
     .marker{
-
+        text-align: left;
     }
 
     #knn-marker{
-
+        margin-top: 40px;
     }
     #rf-marker{
 
     }
-    #actual-marker{
-        
-    }
+    
 
 
 </style>
