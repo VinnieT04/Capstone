@@ -27,17 +27,13 @@ def home():
 def predict():
     data = request.get_json()
     sample = int(data['sample_id']) #get the id of the sample the user selected
-    print(f"Received sample ID: {sample}")
     x_sample = X.iloc[sample].values.reshape(1, -1)
-    print(f"Shape of x_sample: {x_sample.shape}")
+
     actual_zone = y[sample]
-    print(f"Actual Zone for sample {sample}: {actual_zone}")
 
     #predictions
     knn_pred = knn.predict(x_sample) 
     rf_pred = rf.predict(x_sample)
-
-    print(f"KNN Prediction: {knn_pred[0]}, RF Prediction: {rf_pred[0]}")
 
     #verify if predictions are correct
     correct_knn = bool(knn_pred[0] == actual_zone) 
