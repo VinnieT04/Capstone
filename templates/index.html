@@ -31,18 +31,49 @@
 
                 <div id="knn-marker" class="marker">KNN</div>
                 <div id="rf-marker" class="marker">RF</div>
+                <div id="actual-marker" class="marker">ACTUAL</div>
              </div>
         </div>
         
         <script>
             const ZONE_COORDS = {
                 // Replace these placeholder values with your actual calculated coordinates (in pixels)
-                "TopPicks/Audiovisual": { x: 108, y: 348 },
-                "MainStairs/TopPicks": { x: 304, y: 348 },
-                "LaptopPriority/CurrentPeriodicals": { x: 506, y: 348 },
-                "Stairs/RightEnd": { x: 365, y: 122.5 },
-                "Hallway/LeftEnd": { x: 839.5, y: 122.5}
+                "TopPicks/Audiovisual": { x: 125, y: 380 },
+                "MainStairs/TopPicks": { x: 330, y: 380 },
+                "LaptopPriority/CurrentPeriodicals": { x: 565, y: 380 },
+                "Stairs/RightEnd": { x: 410, y: 130 },
+                "Hallway/LeftEnd": { x: 150, y: 130}
             };
+
+            const offset = 50;
+
+            function moveMarker(id, zoneName, isCorrect=false) {
+                const marker = document.getElementById(id);
+                const coords = ZONE_COORDS[zoneName];
+                
+                // Default offset is 0
+                let offsetX = 0; 
+                let offsetY = 0;
+
+                if (marker && coords) {
+                    if (isCorrect) {
+                        if (id === 'knn-marker') {
+                            offsetX = -offset; // Move KNN marker to the left
+                        } else if (id === 'rf-marker') {
+                            offsetX = offset; // Move RF marker to the right
+                        }
+                    }
+
+                    // Set the position using the looked-up coordinates plus the calculated offset
+                    marker.style.left = (coords.x + offsetX) + 'px';
+                    marker.style.top = (coords.y + offsetY) + 'px';
+                    marker.style.display = 'block';
+
+                } else {
+                    console.error(`Coordinates not found for zone: ${zoneName} or marker ${id} not found.`);
+                    if(marker) marker.style.display = 'none';
+                }
+            }
 
             function getOption()
             {
@@ -81,7 +112,16 @@
                     <p><strong>Actual Location:</strong> ${data.actual}</p>
                     <p><strong>KNN Prediction:</strong> ${knnStatus}</p>
                     <p><strong>Random Forest Prediction:</strong> ${rfStatus}</p>
-                `;
+                    `;
+
+                    //move actual marker
+                    moveMarker('actual-marker', data.actual);
+                    
+                    //move the 'KNN' marker
+                    moveMarker('knn-marker', data.knn_prediction, data.knn_correct);
+
+                    //move the 'RF' marker
+                    moveMarker('rf-marker', data.rf_prediction, data.knn_correct);
                 })
 
                 .catch(error => {
@@ -89,6 +129,13 @@
                     document.getElementById('results').innerHTML = `<p style="color: red;">Failed to get prediction: ${error.message}</p>`;
                 });
             }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const markers = document.querySelectorAll('.marker');
+                markers.forEach(marker => {
+                    marker.style.display = 'none';
+                });
+            });
         </script>
         
     </body>
@@ -103,7 +150,7 @@
     }
 
     h1{
-
+        size: 40pt;
     }
 
     .button{
@@ -113,9 +160,7 @@
         box-shadow: 0 2px #999;
         cursor: pointer;
         background-color: rgb(214, 214, 214);
-        padding: 3px 20px;
-
-        
+        padding: 3px 20px;   
     }
 
     .button:hover{
@@ -127,6 +172,11 @@
         display: flex;
         justify-content: center;
         margin: 20px, auto;
+    }
+
+    #results{
+        align-items: center;
+        align-content: center;
     }
     
     select {
@@ -155,15 +205,21 @@
     }
 
     .marker{
-        text-align: left;
+        position: absolute; /* Crucial for moving with top/left properties */
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 0.8em;
+        font-weight: bold;
+        color: white; 
+        white-space: nowrap; 
+        transform: translate(-50%, -50%); /* Centers the marker anchor point */
+        transition: left 0.5s ease-out, top 0.5s ease-out; /* Smooth movement animation */
+        border: 1px solid #333; /* For better visibility */
     }
 
-    #knn-marker{
-        margin-top: 40px;
-    }
-    #rf-marker{
-
-    }
+    #actual-marker {background-color: aquamarine;}
+    #knn-marker { background-color: #0000FF; z-index: 2; } /* Blue for KNN */
+    #rf-marker { background-color: #FF0000; z-index: 1; } /* Red for RF */
     
 
 
