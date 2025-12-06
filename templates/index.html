@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WiFi Fingerprinting Demo</title>
+    </head>
+    <body>
+        <h1>Indoor Positioning using WiFi Fingerprinting</h1>
+        
+        <div>
+            <h2>Select a sample to test:</h2>
+            <select id="sampleDropdown">
+                <option value="">-- Choose a sample --</option>
+                {% for idx in Sample %}
+                    <option value="{{ idx }}">Sample {{ idx }}</option>
+                {% endfor %}
+            </select>
+
+        <button id="predictButton" onclick="getOption()">Predict Location</button>
+        
+        </div>
+
+        <div id="container">
+            <div id="results">
+            <!-- Results will appear here -->
+             </div>
+
+             <div id="map">
+                <img src="/images/library_layout.jpg" alt="Library map" id="floor-map">
+
+                <div id="knn-marker" class="marker">KNN</div>
+                <div id="rf-marker" class="marker">RF</div>
+                <div id="actual-marker" class="marker">Actual</div>
+             </div>
+        </div>
+        
+        <script>
+            function getOption()
+            {
+                selectedElement = document.querySelector('#sampleDropdown')
+                value = selectedElement.value
+
+                //fetch the url
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({sample_id: value})
+                })
+
+                //initial response
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('status: ${response.status}');
+                    } 
+
+                    return response.json();
+                })
+
+                //procesing the data
+                .then(data => {
+                    const resultsDiv = document.getElementById('results')
+                    const selectedValue = document.querySelector('#sampleDropdown').value;
+
+                    const knnStatus = data.knn_correct ? 'Correct' : 'Incorrect';
+                    const rfStatus = data.rf_correct ? 'Correct' : 'Incorrect';
+
+                    resultsDiv.innerHTML = `
+                    <h2>Prediction Results for Sample ${selectedValue}</h2>
+                    <p><strong>Actual Location:</strong> ${data.actual}</p>
+                    <p><strong>KNN Prediction:</strong> ${knnStatus}</p>
+                    <p><strong>Random Forest Prediction:</strong> ${rfStatus}</p>
+                `;
+                })
+
+                .catch(error => {
+                    console.error('Prediction failed:', error);
+                    document.getElementById('results').innerHTML = `<p style="color: red;">Failed to get prediction: ${error.message}</p>`;
+                });
+            }
+        </script>
+        
+    </body>
+</html>
+
+<style>
+    #container{
+        display: flex;
+        justify-content: center;
+        margin: 20px, auto;
+    }
+
+    #map{
+        position: relative;
+        width: 700px;
+        height: auto;
+        border: 1px solid #ccc;
+    }
+
+    #floor-map{
+
+    }
+
+    .marker{
+
+    }
+
+    #knn-marker{
+
+    }
+    #rf-marker{
+
+    }
+    #actual-marker{
+        
+    }
+
+
+</style>
