@@ -8,7 +8,7 @@ app = Flask(__name__)
 #Load models
 knn = joblib.load('knn_model.pkl')
 rf = joblib.load('rf_model.pkl')
-df = pd.read_csv('Pivot_woAVG.csv')
+df = pd.read_csv('Pivot_woAVG.csv') #change to one with different values
 
 X = df.iloc[:, 3:] #select the columns starting from the 3rd one
 y = df['Location'].values

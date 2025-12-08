@@ -41,7 +41,7 @@ print(f"Number of SSIDs (features): {pivot_table.shape[1]}")
 
 #keep track of the SSIDs to see if they are reliable and save them in a new csv
 # print(pivot_table.columns)
-# pivot_table.to_csv("Pivot_woAVG.csv")
+pivot_table.to_csv("Pivot_woAVG.csv")
 
 X = pivot_table.values  #features, the parameters
 y = pivot_table.index.get_level_values('Location')   #labels, what is going to be predicted
