@@ -68,9 +68,9 @@ print(f"Random Forest : {RF_scores.mean():.2%} ± {RF_scores.std():.2%}")
 print(f"Scores: {RF_scores}")
 
 #confusion matrices
-class_labels = ['LaptopPriority/CurrentPeriodicals', 'MainStairs/TopPicks', 'TopPicks/Audiovisual', 'Hallway/LeftEnd', 'Stairs/RightEnd']
-cm_knn = confusion_matrix(y, kNN_predictions, normalize='true')
-cm_rf = confusion_matrix(y, RF_predictions, normalize='true')
+class_labels = sorted(y.unique())
+cm_knn = confusion_matrix(y, kNN_predictions, labels=class_labels, normalize='true')
+cm_rf = confusion_matrix(y, RF_predictions, labels=class_labels, normalize='true')
 
 fig, ax = plt.subplots(figsize=(8, 6))  # slightly larger figure
 disp = ConfusionMatrixDisplay(confusion_matrix=cm_rf, display_labels=class_labels)
