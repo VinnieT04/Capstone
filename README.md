@@ -4,7 +4,7 @@
 A Capstone project that utilizes Wi-Fi signal strength data from access points across different locations in the NTUST's Library and the training of machine learning models to classify or predict the user's position based on their WiFi environment.
 
 ## Project Structure
-- 'scan_woAVG.py - Data Collection - Scans nearby APs 20 times per location, saves to 'new_Scans.csv"
+- 'scan_woAVG.py' - Data Collection - Scans nearby APs 20 times per location, saves to 'new_Scans.csv"
 - 'demoSamples.py' - Data Preparation - Filters to known, reliable SSIDs, pivots data into 'demoScans.csv'
 - 'testRnadomState' - k-NN tuning - Tests k values (1-9) and random seeds via cross-validation
 - 'bestRF.py - RF tuning - GridSearchCV over random forest hyperparameters
